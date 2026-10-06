@@ -36,21 +36,68 @@ defineExpose({
 </script>
 
 <template>
-  <div>
-    <label>日付</label>
-    <input v-model="date" type="date" />
-  </div>
+  <div class="article-editor">
+    <input
+      v-model="date"
+      class="date-input"
+      type="date"
+    />
 
-  <div>
-    <label>タイトル</label>
-    <input v-model="title" type="text" />
-  </div>
+    <input
+      v-model="title"
+      class="title-input"
+      type="text"
+      placeholder="タイトル"
+    />
 
-  <div>
-    <label>本文</label>
     <textarea
       ref="bodyInput"
       v-model="body"
+      class="body-input"
+      placeholder="本文"
     ></textarea>
   </div>
 </template>
+
+<style scoped>
+.article-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.date-input {
+  align-self: flex-start;
+  padding: 0.5rem 0;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  background: transparent;
+  color: inherit;
+}
+
+.title-input {
+  width: 100%;
+  padding: 0.5rem 0;
+  border: none;
+  border-bottom: 2px solid var(--accent);
+  background: transparent;
+  color: var(--text-h);
+  font-size: 1.6rem;
+  font-weight: 500;
+  box-sizing: border-box;
+}
+
+.body-input {
+  width: 100%;
+  min-height: 50vh;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: inherit;
+  font: inherit;
+  line-height: 1.7;
+  box-sizing: border-box;
+  resize: vertical;
+}
+</style>

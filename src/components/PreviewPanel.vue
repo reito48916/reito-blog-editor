@@ -1,53 +1,39 @@
 <script setup lang="ts">
 defineProps<{
-  markdown: string
   previewHtml: string
 }>()
 </script>
 
 <template>
-  <section class="preview-area">
-    <div class="markdown-preview">
-      <h2>Markdown</h2>
-      <pre>{{ markdown }}</pre>
-    </div>
+  <section class="preview-panel">
+    <h2>Preview</h2>
 
-    <div class="html-preview">
-      <h2>Preview</h2>
-      <div class="preview" v-html="previewHtml"></div>
-    </div>
+    <div
+      class="preview"
+      v-html="previewHtml"
+    ></div>
   </section>
 </template>
 
 <style scoped>
-.preview-area {
-  display: flex;
-  gap: 1.5rem;
+.preview-panel {
   margin-top: 2rem;
-}
+  padding: 1.5rem;
 
-.markdown-preview,
-.html-preview {
-  flex: 1;
-  min-width: 0;
-}
-
-.markdown-preview pre {
-  padding: 1rem;
-  overflow-x: auto;
-  white-space: pre-wrap;
-  border: 1px solid #ccc;
+  border: 2px solid #4caf50;
+  border-radius: 8px;
 }
 
 .preview {
-  padding: 1.5rem;
-  border: 1px solid #ccc;
   line-height: 1.7;
 }
 
-@media (max-width: 800px) {
-  .preview-area {
-    flex-direction: column;
-  }
+.preview :deep(p:has(.article-image)) {
+  text-align: center;
+}
+
+.preview :deep(.article-image) {
+  display: inline-block;
+  vertical-align: middle;
 }
 </style>

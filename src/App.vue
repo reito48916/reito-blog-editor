@@ -34,11 +34,11 @@ const {
   publishArticle
 } = usePublish()
 
-
-import PreviewPanel from './components/PreviewPanel.vue'
 import ArticleEditor from './components/ArticleEditor.vue'
 import ImageSelector from './components/ImageSelector.vue'
 import PublishPanel from './components/PublishPanel.vue'
+import PreviewPanel from './components/PreviewPanel.vue'
+import MarkdownPanel from './components/MarkdownPanel.vue'
 
 async function handleSitePreview() {
   if (!apiKey.value) {
@@ -99,7 +99,15 @@ async function handlePublish() {
   }
 }
 
-const isPreview = ref(false)
+type DisplayPanel = 'preview' | 'markdown' | null
+const displayPanel = ref<DisplayPanel>(null)
+function togglePanel(panel: 'preview' | 'markdown') {
+  displayPanel.value =
+    displayPanel.value === panel
+      ? null
+      : panel
+}
+
 const apiKey = ref('')
 
 const articleEditor =
@@ -108,6 +116,7 @@ const articleEditor =
 const previewHtml = computed<string>(() => {
   let result = articleMarkdown.value
 
+  // 公開用画像パス → ローカルプレビューURL
   for (const image of usedImages.value) {
     result = result.replaceAll(
       image.publicPath,
@@ -115,9 +124,13 @@ const previewHtml = computed<string>(() => {
     )
   }
 
-  return marked.parse(result, {
-    async: false
-  })
+  // MkDocs attr_list の画像幅指定を簡易プレビュー用HTMLへ変換
+  result = result.replace(
+    /!\[([^\]]*)\]\(([^)]+)\)\{\s*width="(\d+)%"(?:\s+\.article-image)?\s*\}/g,
+    '<img src="$2" alt="$1" class="article-image" style="width: $3%; height: auto;">'
+  )
+
+  return marked.parse(result, { async: false })
 })
 
 function handleImageInsert(
@@ -132,7 +145,7 @@ function handleImageInsert(
 
 <template>
   <main>
-    <h1>テスト</h1>
+    <h1>記事編集ツール</h1>
     <ArticleEditor
       ref="articleEditor"
       v-model:date="date"
@@ -146,13 +159,21 @@ function handleImageInsert(
       @insert="handleImageInsert"
     />
 
-    <button @click="isPreview = !isPreview">プレビュー</button>
+    <div class="panel-controls">
+      <button
+        type="button"
+        @click="togglePanel('preview')"
+      >
+        プレビュー
+      </button>
 
-    <PreviewPanel
-      v-if="isPreview"
-      :markdown="markdown"
-      :preview-html="previewHtml"
-    />
+      <button
+        type="button"
+        @click="togglePanel('markdown')"
+      >
+        生成Markdownを確認
+      </button>
+    </div>
 
     <PublishPanel
       v-model:api-key="apiKey"
@@ -164,20 +185,31 @@ function handleImageInsert(
       @site-preview="handleSitePreview"
       @publish="handlePublish"
     />
+
+    <PreviewPanel
+      v-if="displayPanel === 'preview'"
+      :preview-html="previewHtml"
+    />
+
+    <MarkdownPanel
+      v-else-if="displayPanel === 'markdown'"
+      :markdown="markdown"
+    />
   </main>
 </template>
 
 <style scoped>
 .preview-area {
-  display: flex;
-  gap: 1.5rem;
   margin-top: 2rem;
 }
 
-.markdown-preview,
-.html-preview {
-  flex: 1;
-  min-width: 0;
+.html-preview,
+.markdown-preview {
+  width: 100%;
+}
+
+.markdown-preview {
+  margin-top: 1rem;
 }
 
 .markdown-preview pre {
